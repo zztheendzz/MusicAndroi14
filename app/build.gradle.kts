@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 android {
     namespace = "com.example.myapplication"
@@ -31,8 +32,33 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8" // Phải tương thích với phiên bản Kotlin bạn dùng
+    }
 }
 dependencies {
+
+    // 1. Compose BOM - Quản lý phiên bản tập trung
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.00") // Bạn có thể cập nhật bản mới nhất
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
+    // 2. Core Libraries cho Compose
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3") // Sử dụng Material Design 3
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+
+    // 3. Integration với Activity và ViewModel
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+
+
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     implementation("com.google.dagger:hilt-android:2.57.1")
