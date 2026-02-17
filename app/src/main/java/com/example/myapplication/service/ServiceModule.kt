@@ -12,8 +12,6 @@ import dagger.hilt.android.scopes.ServiceScoped
 import androidx.media3.common.C
 import androidx.media3.common.Player
 import jakarta.inject.Singleton
-
-
 @Module
 @InstallIn(ServiceComponent::class) // Chỉ tồn tại trong phạm vi Service
 object ServiceModule {
@@ -24,11 +22,6 @@ object ServiceModule {
         .setUsage(C.USAGE_MEDIA)
         .build()
     @Provides
-    @Singleton
-    fun providePlayer(@ApplicationContext context: Context): Player {
-        return ExoPlayer.Builder(context).build()
-    }
-    @Provides
     @ServiceScoped
     fun provideExoPlayer(
         @ApplicationContext context: Context,
@@ -37,5 +30,4 @@ object ServiceModule {
         .setAudioAttributes(audioAttributes, true)
         .setHandleAudioBecomingNoisy(true) // Tự dừng khi rút tai nghe
         .build()
-
 }

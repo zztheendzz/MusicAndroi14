@@ -17,18 +17,14 @@ import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MusicService : MediaSessionService() {
-
     @Inject
     lateinit var player: ExoPlayer
-
     private var mediaSession: MediaSession? = null
-
     override fun onCreate() {
         super.onCreate()
         mediaSession = MediaSession.Builder(this, player).build()
         startForegroundPlayback()
     }
-
     override fun onDestroy() {
         mediaSession?.run {
             player.release()
@@ -37,7 +33,6 @@ class MusicService : MediaSessionService() {
         }
         super.onDestroy()
     }
-
     companion object {
         const val ACTION_PLAY = "com.example.myapplication.action.PLAY"
         const val ACTION_PAUSE = "com.example.myapplication.action.PAUSE"

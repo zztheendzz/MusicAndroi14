@@ -40,7 +40,9 @@ android {
     }
 }
 dependencies {
-
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation(libs.androidx.runtime)
     // 1. Compose BOM - Quản lý phiên bản tập trung
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00") // Bạn có thể cập nhật bản mới nhất
     implementation(composeBom)
