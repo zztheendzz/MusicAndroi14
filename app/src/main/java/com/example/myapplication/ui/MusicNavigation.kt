@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.viewmodel.MusicViewModel
 
-
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun MusicNavigation() {
@@ -24,7 +23,7 @@ fun MusicNavigation() {
             MusicListScreen(
                 viewModel = viewModel,
                 onSongClick = { song ->
-                    viewModel.selectSong(song)
+                    viewModel.onEvent(MusicEvent.PlaySong(song))
                     navController.navigate(Screen.Player.route)
                 }
             )

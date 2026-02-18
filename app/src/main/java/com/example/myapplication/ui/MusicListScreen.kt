@@ -37,7 +37,7 @@ fun MusicListScreen(
                     song = song,
                     onClick = {
                         onSongClick(song);
-                        viewModel.onEvent(MusicEvent.PlaySong(song))
+//                        viewModel.onEvent(MusicEvent.PlaySong(song))
                     }
                 )
             }
