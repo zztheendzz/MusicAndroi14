@@ -17,17 +17,34 @@ class MusicServiceConnection @Inject constructor(
 ) {
     private val _isConnected = MutableStateFlow(false)
     val isConnected = _isConnected.asStateFlow()
-
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying = _isPlaying.asStateFlow()
     var mediaController: MediaController? = null
 
     init {
         val sessionToken = SessionToken(context, ComponentName(context, MusicService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-
-        // Kết nối bất đồng bộ - KHÔNG DÙNG .get() trực tiếp
         controllerFuture.addListener({
-            mediaController = controllerFuture.get()
+            val controller = controllerFuture.get()
+            mediaController = controller
+            // ĐĂNG KÝ LẮNG NGHE SỰ KIỆN TỪ MEDIA3
+            controller.addListener(object : androidx.media3.common.Player.Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    _isPlaying.value = isPlaying // Cập nhật trạng thái vào Flow
+                }
+            })
             _isConnected.value = true
         }, MoreExecutors.directExecutor())
     }
+
+//    init {
+//        val sessionToken = SessionToken(context, ComponentName(context, MusicService::class.java))
+//        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+//
+//        // Kết nối bất đồng bộ - KHÔNG DÙNG .get() trực tiếp
+//        controllerFuture.addListener({
+//            mediaController = controllerFuture.get()
+//            _isConnected.value = true
+//        }, MoreExecutors.directExecutor())
+//    }
 }

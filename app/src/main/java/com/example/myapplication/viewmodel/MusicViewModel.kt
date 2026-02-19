@@ -14,6 +14,7 @@ import com.example.myapplication.ui.MusicUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,7 +28,23 @@ class MusicViewModel @Inject constructor(
     init {
         loadSongs()
         setupPlayerListener()
+        viewModelScope.launch {
+            while (true) {
+                mediaController?.let { controller ->
+                    _currentPosition.value = controller.currentPosition
+                    _duration.value = controller.duration.coerceAtLeast(0L)
+                }
+                delay(500) // cập nhật mỗi 0.5s
+            }
+        }
     }
+    private val _currentPosition = MutableStateFlow(0L)
+    val currentPosition = _currentPosition.asStateFlow()
+
+    private val _duration = MutableStateFlow(0L)
+    val duration = _duration.asStateFlow()
+    // Chuyển Flow từ Service thành State để UI dễ dùng
+    val isPlaying = serviceConnection.isPlaying
     private val mediaController get() = serviceConnection.mediaController
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs = _songs.asStateFlow()
@@ -152,7 +169,9 @@ class MusicViewModel @Inject constructor(
             it.copy(currentSong = song)
         }
     }
-
+    fun seekTo(position: Long) {
+        mediaController?.seekTo(position)
+    }
 }
 
 

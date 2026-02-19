@@ -22,6 +22,9 @@ import com.example.myapplication.viewmodel.MusicViewModel
 @Composable
 fun MusicPlayerScreen(viewModel: MusicViewModel ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val currentPosition by viewModel.currentPosition.collectAsState()
+    val duration by viewModel.duration.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,17 +49,20 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
         Box(
             modifier = Modifier
                 .size(250.dp)
-                .background(Color(0xFF2C3E50), CircleShape)
-                .clickable { viewModel.onEvent(MusicEvent.PlayPause) }, // Màu xám đậm
+                .background(Color(0xFF2C3E50), CircleShape),
+               // .clickable { viewModel.onEvent(MusicEvent.PlayPause) }, // Màu xám đậm
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-// Đổi icon tùy theo trạng thái isPlaying
-                imageVector = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = "Play/Pause",
-                tint = Color.White,
-                modifier = Modifier.size(40.dp)
-            )
+//            Icon(
+//// Đổi icon tùy theo trạng thái isPlaying
+//
+//                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+////                    contentDescription = null
+//
+//                contentDescription = "Play/Pause",
+//                tint = Color.White,
+//                modifier = Modifier.size(40.dp)
+//            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -80,14 +86,13 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
 
         // 4. Các nút chức năng (Like, Add, Equalizer, Timer, Volume)
         Row(
-            modifier = Modifier.fillMaxWidth().clickable { viewModel.onEvent(MusicEvent.PlayPause) },
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            ActionButton(icon = Icons.Default.FavoriteBorder)
-            ActionButton(icon = Icons.Default.AddCircleOutline)
-            ActionButton(icon = Icons.Default.GraphicEq)
-            ActionButton(icon = Icons.Default.Schedule)
-            ActionButton(icon = Icons.Default.VolumeUp)
+            ActionButton(icon = Icons.Default.FavoriteBorder, onClick = {})
+            ActionButton(icon = Icons.Default.AddCircleOutline, onClick = {})
+            ActionButton(icon = Icons.Default.GraphicEq, onClick = {})
+            ActionButton(icon = Icons.Default.Schedule, onClick = {})
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -95,21 +100,36 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
         // 5. Thanh SeekBar (Slider)
         var sliderPosition by remember { mutableStateOf(0.1f) }
         Column {
+
             Slider(
-                value = sliderPosition,
-                onValueChange = { sliderPosition = it },
+                value = if (duration > 0)
+                    currentPosition.toFloat() / duration.toFloat()
+                else 0f,
+
+                onValueChange = { value ->
+                    val newPosition = (value * duration).toLong()
+                    viewModel.seekTo(newPosition)
+                },
+
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
                     activeTrackColor = Color.LightGray,
                     inactiveTrackColor = Color.DarkGray
                 )
             )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("00:02", color = Color.White)
-                Text("05:23", color = Color.White)
+                Text(
+                    text = formatTime(currentPosition),
+                    color = Color.White
+                )
+                Text(
+                    text = formatTime(duration),
+                    color = Color.White
+                )
             }
         }
 
@@ -133,7 +153,7 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                  imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = "Play/Pause",
                     tint = Color.White,
                     modifier = Modifier.size(40.dp)
@@ -145,12 +165,25 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
         }
     }
 }
+fun formatTime(timeMs: Long): String {
+    val totalSeconds = timeMs / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return String.format("%02d:%02d", minutes, seconds)
+}
 @Composable
-fun ActionButton(icon: ImageVector) {
-    Icon(
-        imageVector = icon,
-        contentDescription = null,
-        tint = Color.White,
-        modifier = Modifier.size(24.dp)
-    )
+fun ActionButton(
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    IconButton(
+        onClick = onClick
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
+        )
+    }
 }
