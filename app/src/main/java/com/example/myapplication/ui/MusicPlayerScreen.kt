@@ -142,7 +142,16 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(Icons.Default.Shuffle, contentDescription = "Shuffle", tint = Color.White)
-            Icon(Icons.Default.SkipPrevious, contentDescription = "Previous", tint = Color.White, modifier = Modifier.size(40.dp))
+            IconButton(
+                onClick = { viewModel.onEvent(MusicEvent.Previous) }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SkipPrevious,
+                    contentDescription = "Next",
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
 
             // Nút Play to ở giữa
             Box(
@@ -160,8 +169,27 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                 )
             }
 
-            Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = Color.White, modifier = Modifier.size(40.dp))
-            Icon(Icons.Default.Repeat, contentDescription = "Repeat", tint = Color.White)
+            IconButton(
+                onClick = { viewModel.onEvent(MusicEvent.Next) }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.SkipNext,
+                    contentDescription = "Next",
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+
+            IconButton(
+                onClick = { viewModel.onEvent(MusicEvent.Repeat) }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Repeat,
+                    contentDescription = "Repeat",
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
         }
     }
 }

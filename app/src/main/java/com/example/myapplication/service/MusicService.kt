@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
@@ -111,5 +112,14 @@ class MusicService : MediaSessionService() {
             .build()
 
         startForeground(1, notification)
+    }
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.d("MusicService", "App was swiped away")
+        player?.apply {
+            stop()
+            release()
+        }
+        stopSelf()
     }
 }

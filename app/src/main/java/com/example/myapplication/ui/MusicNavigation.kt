@@ -1,51 +1,88 @@
 package com.example.myapplication.ui
 
-import android.annotation.SuppressLint
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
+import androidx.navigation.compose.*
 import com.example.myapplication.viewmodel.MusicViewModel
+
 @Composable
 fun MusicNavigation() {
+
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = "music_flow" // Route của cả cụm
+        startDestination = "music-flow"
     ) {
-        // Tạo một cụm (Graph) riêng cho Nhạc
+
         navigation(
-            route = "music_flow",
+            route = "music-flow",
             startDestination = Screen.SongList.route
         ) {
-            composable(Screen.SongList.route) { backStackEntry ->
-                // Lấy ViewModel theo "music_flow"
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("music_flow")
-                }
-                val viewModel: MusicViewModel = hiltViewModel(parentEntry)
 
-                MusicListScreen(
-                    viewModel = viewModel,
-                    onSongClick = { song ->
-                        viewModel.onEvent(MusicEvent.PlaySong(song))
-                        navController.navigate(Screen.Player.route)
+            // ---------------- SONG LIST ----------------
+
+            composable(Screen.SongList.route) { backStackEntry ->
+
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("music-flow")
+                }
+
+                val viewModel: MusicViewModel =
+                    hiltViewModel(parentEntry)
+
+                val uiState by viewModel.uiState.collectAsState()
+
+                Scaffold(
+                    bottomBar = {
+                        if (uiState.currentSong != null) {
+                            MiniPlayer(
+                                song = uiState.currentSong!!,
+                                isPlaying = uiState.isPlaying,
+                                onPlayPause = {
+                                    viewModel.onEvent(MusicEvent.PlayPause)
+                                },
+                                onNext = {
+                                    viewModel.onEvent(MusicEvent.Next)
+                                },
+                                onPrevious = {
+                                    viewModel.onEvent(MusicEvent.Previous)
+                                },
+                                onClick = {
+                                    navController.navigate(Screen.Player.route)
+                                }
+                            )
+                        }
                     }
-                )
+                ) { padding ->
+
+                    MusicListScreen(
+                        viewModel = viewModel,
+                        onSongClick = { song ->
+                            viewModel.onEvent(MusicEvent.PlaySong(song))
+                        },
+                        modifier = Modifier.padding(padding)
+                    )
+                }
             }
 
-            composable(Screen.Player.route) { backStackEntry ->
-                // Cũng lấy chung một instance ViewModel từ "music_flow"
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry("music_flow")
-                }
-                val viewModel: MusicViewModel = hiltViewModel(parentEntry)
+            // ---------------- PLAYER SCREEN ----------------
 
-                MusicPlayerScreen(viewModel)
+            composable(Screen.Player.route) { backStackEntry ->
+
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("music-flow")
+                }
+
+                val viewModel: MusicViewModel =
+                    hiltViewModel(parentEntry)
+
+                MusicPlayerScreen(
+                    viewModel = viewModel
+                )
             }
         }
     }

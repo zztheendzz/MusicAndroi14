@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(
@@ -26,8 +27,14 @@ class MusicViewModel @Inject constructor(
     private val serviceConnection: MusicServiceConnection
 ) : ViewModel() {
     init {
-        loadSongs()
-        setupPlayerListener()
+        viewModelScope.launch {
+            serviceConnection.isConnected.collect { connected ->
+                if (connected) {
+                    loadSongs()
+                    setupPlayerListener()
+                }
+            }
+        }
         viewModelScope.launch {
             while (true) {
                 mediaController?.let { controller ->
@@ -62,8 +69,12 @@ class MusicViewModel @Inject constructor(
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 // Logic để tìm bài hát tương ứng từ list của bạn và update currentSong
                 val currentSongId = mediaItem?.mediaId
+                println("Transition to mediaId = $currentSongId")
                 val song = _songs.value.find { it.id.toString() == currentSongId }
+                println("Found song = $song")
                 _uiState.value = _uiState.value.copy(currentSong = song)
+                val index = mediaController?.currentMediaItemIndex ?: -1
+                println("🔥 Transition fired. New index = $index")
             }
 
             // Bạn có thể thêm lắng nghe RepeatMode, ShuffleMode ở đây...
@@ -72,12 +83,30 @@ class MusicViewModel @Inject constructor(
     }
 
     fun loadSongs() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val musicList = repository.fetchLocalSongs()
+        viewModelScope.launch {
+
+            // 1️⃣ Load dữ liệu ở IO
+            val musicList = withContext(Dispatchers.IO) {
+                repository.fetchLocalSongs()
+            }
+
             _songs.value = musicList
+
+            // 2️⃣ Gọi MediaController trên Main thread
+            mediaController?.let { controller ->
+
+                val mediaItems = musicList.map { s ->
+                    MediaItem.Builder()
+                        .setMediaId(s.id.toString())
+                        .setUri(s.uri)
+                        .build()
+                }
+
+                controller.setMediaItems(mediaItems)
+                controller.prepare()
+            }
         }
     }
-
 
     fun onEvent(event: MusicEvent) {
         // Trình biên dịch báo lỗi nếu thiếu 1 trong 4 loại event trên
@@ -101,31 +130,15 @@ class MusicViewModel @Inject constructor(
 
     private fun handlePlaySong(song: Song) {
         mediaController?.let { controller ->
-            // 1. Tạo MediaItem từ dữ liệu bài hát (quan trọng nhất là URI)
-            val mediaItem = MediaItem.Builder()
-                .setMediaId(song.id.toString())
-                .setUri(song.uri) // URI này lấy từ lúc bạn quét máy
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(song.title)
-                        .setArtist(song.artist)
-                        .build()
-                )
-                .build()
 
-            // 2. Đưa vào Controller và phát
-            controller.setMediaItem(mediaItem)
-            controller.prepare()
-            controller.play()
-            _uiState.update {
-                it.copy(
-                    currentSong = song,
-                    isPlaying = true
-                )
+            val index = _songs.value.indexOfFirst { it.id == song.id }
+
+            println("Play index = $index")
+
+            if (index != -1) {
+                controller.seekTo(index, 0L)
+                controller.play()
             }
-        }?: run {
-            // Thêm log ở đây để kiểm tra
-            println("LỖI: MediaController đang bị NULL, không thể phát nhạc")
         }
     }
 
@@ -153,11 +166,14 @@ class MusicViewModel @Inject constructor(
     }
 
     private fun handleNext() {
-        // Ví dụ: musicServiceConnection.transportControls.skipToNext()
+        println("Player item count: ${mediaController?.mediaItemCount}")
+        println("Current index = ${mediaController?.currentMediaItemIndex}")
+        println("Total items = ${mediaController?.mediaItemCount}")
+        mediaController?.seekToNextMediaItem()
     }
 
     private fun handlePrevious() {
-        // Logic quay lại bài trước
+        mediaController?.seekToPreviousMediaItem()
     }
 
     private fun handleSeekTo(position: Long) {

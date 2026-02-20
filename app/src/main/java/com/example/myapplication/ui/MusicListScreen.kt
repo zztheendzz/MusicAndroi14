@@ -19,7 +19,8 @@ import com.example.myapplication.viewmodel.MusicViewModel
 @Composable
 fun MusicListScreen(
     viewModel: MusicViewModel,
-    onSongClick: (Song) -> Unit
+    onSongClick: (Song) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     // Lấy danh sách từ ViewModel (đã giải thích ở phần StateFlow)
@@ -38,7 +39,6 @@ fun MusicListScreen(
                     song = song,
                     onClick = {
                         onSongClick(song);
-//                        viewModel.onEvent(MusicEvent.PlaySong(song))
                     }
                 )
             }
