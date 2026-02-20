@@ -59,12 +59,10 @@ class MusicViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
     fun setupPlayerListener(){
         mediaController?.addListener(object : androidx.media3.common.Player.Listener {
-
             // Khi bấm Play/Pause, hàm này sẽ tự chạy
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 _uiState.value = _uiState.value.copy(isPlaying = isPlaying)
             }
-
             // Khi bài hát thay đổi (Next/Previous)
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 // Logic để tìm bài hát tương ứng từ list của bạn và update currentSong
@@ -76,12 +74,9 @@ class MusicViewModel @Inject constructor(
                 val index = mediaController?.currentMediaItemIndex ?: -1
                 println("🔥 Transition fired. New index = $index")
             }
-
             // Bạn có thể thêm lắng nghe RepeatMode, ShuffleMode ở đây...
         })
-
     }
-
     fun loadSongs() {
         viewModelScope.launch {
 
@@ -101,7 +96,6 @@ class MusicViewModel @Inject constructor(
                         .setUri(s.uri)
                         .build()
                 }
-
                 controller.setMediaItems(mediaItems)
                 controller.prepare()
             }
@@ -127,7 +121,6 @@ class MusicViewModel @Inject constructor(
 
         }
     }
-
     private fun handlePlaySong(song: Song) {
         mediaController?.let { controller ->
 
@@ -141,19 +134,15 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-
     private fun handleRandom() {
         // Ví dụ: musicServiceConnection.playOrPause()
     }
-
     private fun handleRepeat() {
         // Ví dụ: musicServiceConnection.transportControls.skipToNext()
     }
-
     private fun handleLike() {
         // Logic quay lại bài trước
     }
-
     private fun handlePlayPause() {
         // Sử dụng ?.let hoặc kiểm tra null trước khi gọi
         mediaController?.let { controller ->
@@ -164,7 +153,6 @@ class MusicViewModel @Inject constructor(
             }
         }
     }
-
     private fun handleNext() {
         println("Player item count: ${mediaController?.mediaItemCount}")
         println("Current index = ${mediaController?.currentMediaItemIndex}")

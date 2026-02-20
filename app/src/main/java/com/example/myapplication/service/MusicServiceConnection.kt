@@ -36,15 +36,4 @@ class MusicServiceConnection @Inject constructor(
             _isConnected.value = true
         }, MoreExecutors.directExecutor())
     }
-
-//    init {
-//        val sessionToken = SessionToken(context, ComponentName(context, MusicService::class.java))
-//        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-//
-//        // Kết nối bất đồng bộ - KHÔNG DÙNG .get() trực tiếp
-//        controllerFuture.addListener({
-//            mediaController = controllerFuture.get()
-//            _isConnected.value = true
-//        }, MoreExecutors.directExecutor())
-//    }
 }

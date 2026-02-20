@@ -52,7 +52,6 @@ fun SongItem(song: Song, onClick: () -> Unit) {
                 fontSize = 14.sp
             )
         }
-
         // Nút Menu 3 chấm bên phải
         Icon(Icons.Default.MoreVert, contentDescription = null, tint = Color.White)
     }

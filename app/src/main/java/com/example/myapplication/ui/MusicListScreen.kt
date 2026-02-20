@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -25,7 +26,7 @@ fun MusicListScreen(
 
     // Lấy danh sách từ ViewModel (đã giải thích ở phần StateFlow)
     val songList by viewModel.songs.collectAsState()
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0E14))) {
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding().background(Color(0xFF0A0E14))) {
         // Tiêu đề: Bài hát (số lượng)
         Text(
             text = "Bài hát (${songList.size})",

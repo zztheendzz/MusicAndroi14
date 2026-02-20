@@ -28,6 +28,7 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .background(Color(0xFF101418)) // Màu nền tối
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -53,18 +54,7 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                // .clickable { viewModel.onEvent(MusicEvent.PlayPause) }, // Màu xám đậm
             contentAlignment = Alignment.Center
         ) {
-//            Icon(
-//// Đổi icon tùy theo trạng thái isPlaying
-//
-//                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-////                    contentDescription = null
-//
-//                contentDescription = "Play/Pause",
-//                tint = Color.White,
-//                modifier = Modifier.size(40.dp)
-//            )
         }
-
         Spacer(modifier = Modifier.height(32.dp))
 
         // 3. Tên bài hát & Ca sĩ
@@ -94,13 +84,10 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
             ActionButton(icon = Icons.Default.GraphicEq, onClick = {})
             ActionButton(icon = Icons.Default.Schedule, onClick = {})
         }
-
         Spacer(modifier = Modifier.height(24.dp))
-
         // 5. Thanh SeekBar (Slider)
         var sliderPosition by remember { mutableStateOf(0.1f) }
         Column {
-
             Slider(
                 value = if (duration > 0)
                     currentPosition.toFloat() / duration.toFloat()
@@ -117,7 +104,6 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                     inactiveTrackColor = Color.DarkGray
                 )
             )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -132,9 +118,7 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                 )
             }
         }
-
         Spacer(modifier = Modifier.weight(1f))
-
         // 6. Media Controls (Shuffle, Back, Play, Next, Repeat)
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
@@ -152,7 +136,6 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                     modifier = Modifier.size(40.dp)
                 )
             }
-
             // Nút Play to ở giữa
             Box(
                 modifier = Modifier
@@ -168,7 +151,6 @@ fun MusicPlayerScreen(viewModel: MusicViewModel ) {
                     modifier = Modifier.size(40.dp)
                 )
             }
-
             IconButton(
                 onClick = { viewModel.onEvent(MusicEvent.Next) }
             ) {

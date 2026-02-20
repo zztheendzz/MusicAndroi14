@@ -47,7 +47,7 @@ class MusicService : MediaSessionService() {
     ): Int {
 
         when (intent?.action) {
-            ACTION_PLAY -> play()
+//            ACTION_PLAY -> play()
             ACTION_PAUSE -> player.pause()
             ACTION_STOP -> stopSelf()
         }
@@ -58,18 +58,6 @@ class MusicService : MediaSessionService() {
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
         return mediaSession
-    }
-
-    private fun play() {
-        startForegroundService() // 🔥 BẮT BUỘC
-
-        if (player.mediaItemCount == 0) {
-            val uri = Uri.parse("android.resource://$packageName/${R.raw.test}")
-            player.setMediaItem(MediaItem.fromUri(uri))
-            player.prepare()
-        }
-
-        player.play()
     }
     private fun startForegroundService() {
         val channelId = "music_playback"
